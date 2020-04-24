@@ -1,0 +1,144 @@
+<html>
+    <head><title>This is exercise 1</title>
+
+    </head>
+    <body>
+        <h2>This is hello world application.</h2>
+<canvas id="canvas"></canvas>
+<script>
+  console.log('See console.log output here');
+
+  var strings = ['Your html displays here',
+                 'Simple API descriptions',
+                 'Interactive examples',
+                 'Learn by doing',
+                 'Edit me now!',
+                 ''];
+
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+
+  var fontHeight = 16;
+
+  // Center of the text (vertically)
+  var centerY = fontHeight / 2;
+  context.textBaseline = 'middle';
+
+  // Set the font properties
+  context.font = fontHeight + 'px sans-serif';
+
+  // Linear Interpolation
+  var lerp = function(from, to, t) {
+    return (to - from) * t + from;
+  };
+
+  // Create a simple list of keyframe
+  var keyframes = [
+    // Slide the text down
+    { time: 500, /* ms */
+      applyKeyframe: function(context, t) {
+        // Animate the opacity and position
+        context.globalAlpha = t;
+        context.translate(0, lerp(-(centerY + fontHeight), 0, Math.sin(t * Math.PI / 2)));
+      }
+    },
+    
+    // Delay
+    { time: 1500 }, /* ms */
+
+    // Slide the text down
+    { time: 350, /* ms */
+      applyKeyframe: function(context, t) {
+        context.globalAlpha = (1 - t);
+        context.translate(0, lerp(0, centerY + fontHeight, Math.sin(t * Math.PI / 2)));
+      }
+    },
+
+    // Stay hidden
+    { time: 350, /* ms */
+      applyKeyframe: function(context, t) {
+        context.globalAlpha = 0;
+      }
+    },
+  ];
+
+  // Get the total length of the animation
+  var totalTime = keyframes.reduce(function(t, keyframe) {
+    return t + keyframe.time;
+  }, 0);
+
+  // Create a function that draws one frame of the animation
+  var drawFrame = function(time) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    var string = strings[((time / totalTime) | 0) % strings.length];
+
+    time = time % totalTime;
+
+    var keyframe;
+    for (var i = 0; i < keyframes.length; i++) {
+      keyframe = keyframes[i];
+      if (time < keyframe.time) {
+        break;
+      }
+      time -= keyframe.time
+    }
+
+    // Save the context's state (transforms, colors, etc)
+    context.save();
+
+    if (keyframe.applyKeyframe) {
+      keyframe.applyKeyframe(context, time / keyframe.time);
+    }
+
+    context.fillText(string, 0, centerY);
+
+    // Restore the state
+    context.restore();
+
+    // Register our callback for the next frame
+    requestAnimationFrame(drawFrame);
+  };
+
+  requestAnimationFrame(drawFrame);
+</script>
+
+    <!-- Code injected by live-server -->
+<script type="text/javascript">
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script></body>
+</html>
